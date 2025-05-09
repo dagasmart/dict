@@ -1,0 +1,39 @@
+{
+    "name": "dagasmart/dict",
+    "alias": "数据字典",
+    "description": "bizAdmin 数据字典扩展",
+    "type": "library",
+    "keywords": [
+        "bizadmin",
+        "extension",
+        "dict"
+    ],
+    "homepage": "https://github.com/dagasmart/dict",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "DagaSmart",
+            "email": "DagaSmart@qq.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.0",
+        "dagasmart/bizadmin": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "DagaSmart\\Dict\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "extra": {
+        "bizadmin": "DagaSmart\\Dict\\DictServiceProvider",
+        "laravel": {
+            "providers": [
+                "DagaSmart\\Dict\\DictServiceProvider"
+            ]
+        }
+    }
+}
