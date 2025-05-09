@@ -2,11 +2,9 @@
 
 namespace DagaSmart\Dict\Http\Controllers;
 
+use DagaSmart\BizAdmin\Renderers\Card;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
-use DagaSmart\BizAdmin\Renderers\Alert;
 use DagaSmart\BizAdmin\Renderers\Dialog;
 use DagaSmart\BizAdmin\Renderers\CRUDTable;
 use DagaSmart\BizAdmin\Renderers\Form;
@@ -27,14 +25,85 @@ use DagaSmart\BizAdmin\Controllers\AdminController;
 /**
  * @property AdminService|BasicDictService $service
  */
-class DictController extends AdminController
+class BasicDictController extends AdminController
 {
     protected string $serviceName = BasicDictService::class;
 
+    public function index(): JsonResponse|JsonResource
+    {
+        if ($this->actionOfGetData()) {
+            return $this->response()->success($this->service->list());
+        }
+
+        $css = [
+            '.cxd-Tree-itemArrowPlaceholder' => ['display' => 'none'],
+            '.cxd-Tree-itemLabel'            => ['padding-left' => '0 !important'],
+        ];
+
+        $page = amis()->Page()->body([
+            amis()->Flex()->items([
+                $this->navBar(),
+                $this->list()
+            ]),
+        ])->css($css);
+
+        return $this->response()->success($page);
+    }
+
+
+    public function navBar(): Card
+    {
+        $formItems = [
+            amis()->TextControl('value', $this->trans('type_label'))->required()->maxLength(255),
+            amis()->TextControl('key', $this->trans('type_value'))->required()->maxLength(255),
+            amis()->SwitchControl('enabled', $this->trans('field.enabled'))->value(1),
+        ];
+
+        return amis()->Card()->className('w-1/4 mr-5 mb-0 min-w-xs')->body([
+            amis()->Flex()->className('mb-4')->justify('space-between')->items([
+                amis()->Wrapper()
+                    ->size('none')
+                    ->body($this->trans('dict_type.label'))
+                    ->className('flex items-center text-md'),
+            ]),
+            amis()->Form()
+                ->wrapWithPanel(false)
+                ->body(
+                    amis()->TreeControl('dict_type')
+                        ->id('dict_type_list')
+                        ->source('/basic/dict/dict_type_options')
+                        ->set('valueField', 'id')
+                        ->set('labelField', 'value')
+                        ->showIcon(false)
+                        ->searchable()
+                        ->set('rootCreateTip', admin_trans('admin.create') . $this->trans('dict_type.label'))
+                        ->selectFirst()
+                        ->creatable($this->dictTypeEnabled())
+                        ->addControls($formItems)
+                        ->editable($this->dictTypeEnabled())
+                        ->editControls(array_merge($formItems, [amis()->HiddenControl()->name('id')]))
+                        ->removable($this->dictTypeEnabled())
+                        ->addApi($this->getStorePath())
+                        ->editApi($this->getUpdatePath())
+                        ->deleteApi($this->getDeletePath())
+                        ->menuTpl('<span class="text-gray-300 w-1/5">${value}</div>')
+                        ->onEvent([
+                            'change' => [
+                                'actions' => [
+                                    [
+                                        'actionType' => 'url',
+                                        'args'       => ['url' => '/basic/dict?dict_type=${dict_type}'],
+                                    ],
+                                ],
+                            ],
+                        ])
+                ),
+        ]);
+    }
+
+
     /**
      * @return Page
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
      */
     public function list(): Page
     {
@@ -47,12 +116,12 @@ class DictController extends AdminController
         $rowAction = Operation::make()->label(__('admin.actions'))->buttons([
             $this->rowEditButton(true),
             $this->rowDeleteButton(),
-        ])->set('width', 240);
+        ]);
 
         if (DictServiceProvider::setting('disabled_dict_delete')) {
             $rowAction = Operation::make()->label(__('admin.actions'))->buttons([
                 $this->rowEditButton(true),
-            ])->set('width', 120);
+            ]);
         }
 
         $dictTypeButton = $this->dictForm();
@@ -85,7 +154,7 @@ class DictController extends AdminController
                         ->name('enabled')
                         ->label($this->trans('field.enabled'))
                         ->size('md')
-                        ->clearable(true)
+                        ->clearable()
                         ->options([
                             ['label' => $this->trans('yes'), 'value' => 1],
                             ['label' => $this->trans('no'), 'value' => 0],
@@ -94,23 +163,29 @@ class DictController extends AdminController
             )
             ->autoFillHeight(true)
             ->columns([
-                TableColumn::make()
-                    ->name('dict_type.value')
-                    ->label($this->trans('type'))
+                amis()->TableColumn('id', 'ID'),
+                amis()->TableColumn('dict_type.value', $this->trans('type'))
                     ->type('tag')
                     ->set('color', 'active'),
-                TableColumn::make()->name('dict_type.key')->label($this->trans('dict_type.key')),
-                TableColumn::make()->name('key')->label($this->trans('field.key')),
-                TableColumn::make()->name('value')->label($this->trans('field.value')),
-                TableColumn::make()->name('enabled')->label($this->trans('field.enabled'))->type('switch')->width(120),
-                TableColumn::make()->name('sort')->label($this->trans('field.sort'))->quickEdit(true)->width(120),
-                TableColumn::make()->name('created_at')->label(__('admin.created_at'))->width(120),
-                TableColumn::make()->name('updated_at')->label(__('admin.updated_at'))->width(120),
+                amis()->TableColumn('dict_type.key', $this->trans('dict_type.key')),
+                amis()->TableColumn('key', $this->trans('field.key')),
+                amis()->TableColumn('value', $this->trans('field.value')),
+                amis()->TableColumn('enabled', $this->trans('field.enabled'))->type('switch'),
+                amis()->TableColumn('sort', $this->trans('field.sort'))->quickEdit(true),
                 $rowAction,
-            ])->combineFromIndex(0)->combineNum(2);
+            ])->combineFromIndex(1)->combineNum(2);
 
         return $this->basePage()->body([
-            Alert::make()->showIcon(true)->body("调用方法：admin_dict()->getOptions('daga.filesystem.driver')"),
+            amis()->Alert()
+                ->showIcon()
+                ->style([
+                    'padding' => '1rem',
+                    'color' => 'var(--colors-brand-6)',
+                    'borderStyle' => 'dashed',
+                    'borderColor' => 'var(--colors-brand-6)',
+                    'backgroundColor' => 'var(--Tree-item-onChekced-bg)',
+                ])
+                ->body("调用方法：admin_dict()->getOptions('data.filesystem.driver')"),
             $this->baseList($crud)
         ]);
     }
@@ -162,6 +237,17 @@ class DictController extends AdminController
     public function dictTypeOptions(): JsonResponse|JsonResource
     {
         return $this->response()->success($this->service->getDictTypeOptions());
+    }
+
+    public function dictOptions(): JsonResponse|JsonResource
+    {
+        $path = request('path');
+        $list = [];
+        if ($path) {
+            $list = admin_dict()->getOptions($path);
+        }
+
+        return $this->response()->success($list);
     }
 
     public function detail($id): Form
@@ -227,19 +313,16 @@ class DictController extends AdminController
                         ])
                     )
                     ->columns([
-                        TableColumn::make()->name('value')->label($this->trans('field.value')),
-                        TableColumn::make()->name('key')->label($this->trans('field.type_key')),
+                        TableColumn::make()->name('value')->label($this->trans('type_label')),
+                        TableColumn::make()->name('key')->label($this->trans('type_value')),
                         TableColumn::make()
                             ->name('enabled')
                             ->label($this->trans('field.enabled'))
-                            ->type('status')
-                            ->width(120),
-                        TableColumn::make()->name('created_at')->label(__('admin.created_at'))->width(120),
-                        TableColumn::make()->name('updated_at')->label(__('admin.updated_at'))->width(120),
+                            ->type('status'),
                         Operation::make()->label(__('admin.actions'))->buttons([
                             $editButton,
                             $this->rowDeleteButton(),
-                        ])->set('width', 240),
+                        ])->set('width', 150),
                     ])
             )
         );
@@ -249,4 +332,16 @@ class DictController extends AdminController
     {
         return DictServiceProvider::trans('basic-dict.' . $key);
     }
+
+    private function dictTypeEnabled(): bool
+    {
+        return !DictServiceProvider::setting('disabled_dict_type');
+    }
+
+    private function muggleMode()
+    {
+        return DictServiceProvider::setting('muggle_mode');
+    }
+
+
 }

@@ -31,7 +31,13 @@ class BasicDictService extends AdminService
 
     public function getDictTypeOptions()
     {
-        return $this->getDictType()->map(fn($item) => $item->only(['id', 'value']))->toArray();
+        return $this->getDictType()
+            ->map(fn($item) => $item->only(['id', 'value', 'key', 'enabled']))
+            ->map(function ($item) {
+                $item['creatable'] = false;
+                return $item;
+            })
+            ->toArray();
     }
 
     public function list(): array

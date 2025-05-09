@@ -15,11 +15,11 @@ class BasicDict extends BaseModel
 
     public function children(): HasMany
     {
-        return $this->hasMany(BasicDict::class, 'parent_id')->orderByDesc('sort');
+        return $this->hasMany(static::class, 'parent_id')->orderByDesc('sort');
     }
 
     public function dict_type(): BelongsTo
     {
-        return $this->belongsTo(BasicDict::class, 'parent_id');
+        return $this->belongsTo(static::class, 'parent_id');
     }
 }
