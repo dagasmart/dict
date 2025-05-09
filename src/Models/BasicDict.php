@@ -13,6 +13,8 @@ class BasicDict extends BaseModel
 
     protected $table = 'basic_dict';
 
+    protected $primaryKey = 'id';
+
     public function children(): HasMany
     {
         return $this->hasMany(static::class, 'parent_id')->orderByDesc('sort');

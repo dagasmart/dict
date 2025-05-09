@@ -24,7 +24,7 @@ return new class extends Migration
         //创建
         Schema::create($this->table, function (Blueprint $table) {
             $table->comment('基础-数据字典表');
-            $table->id();
+            $table->id()->startingValue(40);
             $table->integer('parent_id')->default(0)->comment('父级ID')->index();
             $table->string('key', 100)->comment('编码/键名')->index();
             $table->tinyInteger('enabled')->default(1)->comment('是否启用')->index();

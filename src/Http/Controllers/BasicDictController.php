@@ -5,20 +5,11 @@ namespace DagaSmart\Dict\Http\Controllers;
 use DagaSmart\BizAdmin\Renderers\Card;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
-use DagaSmart\BizAdmin\Renderers\Dialog;
-use DagaSmart\BizAdmin\Renderers\CRUDTable;
 use DagaSmart\BizAdmin\Renderers\Form;
-use DagaSmart\BizAdmin\Renderers\Operation;
 use DagaSmart\BizAdmin\Renderers\Page;
-use DagaSmart\BizAdmin\Renderers\TableColumn;
-use DagaSmart\BizAdmin\Renderers\TextControl;
 use DagaSmart\BizAdmin\Services\AdminService;
 use DagaSmart\Dict\DictServiceProvider;
 use DagaSmart\BizAdmin\Renderers\DialogAction;
-use DagaSmart\BizAdmin\Renderers\SwitchControl;
-use DagaSmart\BizAdmin\Renderers\NumberControl;
-use DagaSmart\BizAdmin\Renderers\SelectControl;
-use DagaSmart\BizAdmin\Renderers\VanillaAction;
 use DagaSmart\Dict\Services\BasicDictService;
 use DagaSmart\BizAdmin\Controllers\AdminController;
 
@@ -31,6 +22,8 @@ class BasicDictController extends AdminController
 
     public function index(): JsonResponse|JsonResource
     {
+//        admin_abort($this->service->getAllData());
+
         if ($this->actionOfGetData()) {
             return $this->response()->success($this->service->list());
         }
@@ -68,10 +61,14 @@ class BasicDictController extends AdminController
             ]),
             amis()->Form()
                 ->wrapWithPanel(false)
+                ->data([
+                    'items' => $this->service->getDictType(),
+                ])
                 ->body(
                     amis()->TreeControl('dict_type')
                         ->id('dict_type_list')
-                        ->source('/basic/dict/dict_type_options')
+                        //->source('/basic/dict/dict_type_options')
+                        ->source('${items}')
                         ->set('valueField', 'id')
                         ->set('labelField', 'value')
                         ->showIcon(false)
@@ -86,13 +83,13 @@ class BasicDictController extends AdminController
                         ->addApi($this->getStorePath())
                         ->editApi($this->getUpdatePath())
                         ->deleteApi($this->getDeletePath())
-                        ->menuTpl('<span class="text-gray-300 w-1/5">${value}</div>')
+                        ->menuTpl('<span class="w-2/5">${value}</div>')
                         ->onEvent([
                             'change' => [
                                 'actions' => [
                                     [
                                         'actionType' => 'url',
-                                        'args'       => ['url' => '/basic/dict?dict_type=${dict_type}'],
+                                        'args'       => ['url' => '/basic/dict?parent_id=${dict_type}'],
                                     ],
                                 ],
                             ],
@@ -113,13 +110,13 @@ class BasicDictController extends AdminController
             $createButton = '';
         }
 
-        $rowAction = Operation::make()->label(__('admin.actions'))->buttons([
+        $rowAction = amis()->Operation()->label(__('admin.actions'))->buttons([
             $this->rowEditButton(true),
             $this->rowDeleteButton(),
         ]);
 
         if (DictServiceProvider::setting('disabled_dict_delete')) {
-            $rowAction = Operation::make()->label(__('admin.actions'))->buttons([
+            $rowAction = amis()->Operation()->label(__('admin.actions'))->buttons([
                 $this->rowEditButton(true),
             ]);
         }
@@ -135,22 +132,27 @@ class BasicDictController extends AdminController
                 $createButton,
                 'bulkActions',
                 $dictTypeButton,
-                amis('reload')->align('right'),
-                amis('filter-toggler')->align('right'),
+                amis('reload')->set('align','right'),
+                amis('filter-toggler')->set('align','right'),
             ])
             ->filter(
-                $this->baseFilter()->body([
-                    SelectControl::make()
+                $this->baseFilter()
+                    ->data([
+                        'items' => $this->service->getDictType(),
+                    ])
+                    ->body([
+                    amis()->SelectControl()
                         ->name('parent_id')
                         ->label($this->trans('type'))
-                        ->source(admin_url('/basic/dict/dict_type_options'))
-                        ->valueField('id')
-                        ->size('md')
-                        ->clearable(true)
-                        ->labelField('value'),
-                    TextControl::make()->name('key')->label($this->trans('field.key'))->size('md'),
-                    TextControl::make()->name('value')->label($this->trans('field.value'))->size('md'),
-                    SelectControl::make()
+                        //->source(admin_url('/basic/dict/dict_type_options'))
+                        ->source('${items}')
+                        ->set('valueField', 'id')
+                        ->set('labelField', 'value')
+                        ->clearable()
+                        ->size('md'),
+                    amis()->TextControl()->name('key')->label($this->trans('field.key'))->size('md'),
+                    amis()->TextControl()->name('value')->label($this->trans('field.value'))->size('md'),
+                    amis()->SelectControl()
                         ->name('enabled')
                         ->label($this->trans('field.enabled'))
                         ->size('md')
@@ -196,18 +198,20 @@ class BasicDictController extends AdminController
         return $this->baseForm()->id('dict_item_form')->data([
             'enabled' => true,
             'sort'    => 0,
+            'items'   => $this->service->getDictType()
         ])->body([
-            SelectControl::make()
+            amis()->SelectControl()
                 ->name('parent_id')
                 ->label($this->trans('type'))
-                ->source(admin_url('/basic/dict/dict_type_options'))
-                ->clearable(true)
-                ->required(true)
+                //->source(admin_url('/basic/dict/dict_type_options'))
+                ->source('${items}')
+                ->clearable()
+                ->required()
                 ->valueField('id')
                 ->labelField('value'),
-            TextControl::make()->name('value')->label($this->trans('field.value'))->required(true)->maxLength(255),
-            TextControl::make()->name('key')->label($this->trans('field.key'))->required(true)->maxLength(255)->addOn(
-                VanillaAction::make()->label($this->trans('random'))->icon('fa-solid fa-shuffle')->onEvent([
+            amis()->TextControl()->name('value')->label($this->trans('field.value'))->required()->maxLength(255),
+            amis()->TextControl()->name('key')->label($this->trans('field.key'))->required()->maxLength(255)->addOn(
+                amis()->VanillaAction()->label($this->trans('random'))->icon('fa-solid fa-shuffle')->onEvent([
                     'click' => [
                         'actions' => [
                             [
@@ -223,14 +227,14 @@ class BasicDictController extends AdminController
                     ],
                 ])
             ),
-            NumberControl::make()
+            amis()->NumberControl()
                 ->name('sort')
                 ->label($this->trans('field.sort'))
                 ->displayMode('enhance')
                 ->min(0)
                 ->max(9999)
                 ->description($this->trans('sort_description')),
-            SwitchControl::make()->name('enabled')->label($this->trans('field.enabled')),
+            amis()->SwitchControl()->name('enabled')->label($this->trans('field.enabled')),
         ]);
     }
 
@@ -261,31 +265,31 @@ class BasicDictController extends AdminController
             'enabled' => true,
             'sort'    => 0,
         ])->body([
-            TextControl::make()->name('value')->label($this->trans('field.value'))->required(true)->maxLength(255),
-            TextControl::make()->name('key')->label($this->trans('field.key'))->required(true)->maxLength(255),
-            SwitchControl::make()->name('enabled')->label($this->trans('field.enabled')),
+            amis()->TextControl()->name('value')->label($this->trans('field.value'))->required()->maxLength(255),
+            amis()->TextControl()->name('key')->label($this->trans('field.key'))->required()->maxLength(255),
+            amis()->SwitchControl()->name('enabled')->label($this->trans('field.enabled')),
         ]);
 
-        $createButton = DialogAction::make()
-            ->dialog(Dialog::make()->title(__('admin.create'))->body($form))
+        $createButton = amis()->DialogAction()
+            ->dialog(amis()->Dialog()->title(__('admin.create'))->body($form))
             ->label(__('admin.create'))
             ->icon('fa fa-add')
             ->level('primary');
 
         $editForm = (clone $form)->api($this->getUpdatePath('$id'))->initApi($this->getEditGetDataPath('$id'));
 
-        $editButton = DialogAction::make()
-            ->dialog(Dialog::make()->title(__('admin.edit'))->body($editForm))
+        $editButton = amis()->DialogAction()
+            ->dialog(amis()->Dialog()->title(__('admin.edit'))->body($editForm))
             ->label(__('admin.edit'))
             ->icon('fa-regular fa-pen-to-square')
             ->level('link');
 
-        return DialogAction::make()->label($this->trans('dict_type.label'))->dialog(
-            Dialog::make()->title($this->trans('dict_type.label'))->size('lg')->actions([])->body(
-                CRUDTable::make()
-                    ->perPage(20)
+        return amis()->DialogAction()->label($this->trans('dict_type.label'))->dialog(
+            amis()->Dialog()->title($this->trans('dict_type.label'))->size('lg')->actions([])->body(
+                amis()->CRUDTable()
+                    ->perPage(10)
                     ->affixHeader(false)
-                    ->filterTogglable(true)
+                    ->filterTogglable()
                     ->filterDefaultVisible(false)
                     ->bulkActions([$this->bulkDeleteButton()])
                     ->perPageAvailable([10, 20, 30, 50, 100, 200])
@@ -294,18 +298,18 @@ class BasicDictController extends AdminController
                     ->headerToolbar([
                         $createButton,
                         'bulkActions',
-                        amis('reload')->align('right'),
-                        amis('filter-toggler')->align('right'),
+                        amis('reload')->set('align','right'),
+                        amis('filter-toggler')->set('align','right'),
                     ])
                     ->filter(
                         $this->baseFilter()->data(['_type' => 1])->body([
-                            TextControl::make()->name('type_key')->label($this->trans('field.type_key'))->size('md'),
-                            TextControl::make()->name('type_value')->label($this->trans('field.value'))->size('md'),
-                            SelectControl::make()
+                            amis()->TextControl()->name('type_key')->label($this->trans('field.type_key'))->size('md'),
+                            amis()->TextControl()->name('type_value')->label($this->trans('field.value'))->size('md'),
+                            amis()->SelectControl()
                                 ->name('type_enabled')
                                 ->label($this->trans('field.enabled'))
                                 ->size('md')
-                                ->clearable(true)
+                                ->clearable()
                                 ->options([
                                     '1' => $this->trans('yes'),
                                     '0' => $this->trans('no'),
@@ -313,13 +317,13 @@ class BasicDictController extends AdminController
                         ])
                     )
                     ->columns([
-                        TableColumn::make()->name('value')->label($this->trans('type_label')),
-                        TableColumn::make()->name('key')->label($this->trans('type_value')),
-                        TableColumn::make()
+                        amis()->TableColumn()->name('value')->label($this->trans('type_label')),
+                        amis()->TableColumn()->name('key')->label($this->trans('type_value')),
+                        amis()->TableColumn()
                             ->name('enabled')
                             ->label($this->trans('field.enabled'))
                             ->type('status'),
-                        Operation::make()->label(__('admin.actions'))->buttons([
+                        amis()->Operation()->label(__('admin.actions'))->buttons([
                             $editButton,
                             $this->rowDeleteButton(),
                         ])->set('width', 150),

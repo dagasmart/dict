@@ -1,13 +1,13 @@
 <?php
 
-use DagaSmart\Dict\AdminDict;
+use DagaSmart\Dict\DictService;
 
 if (!function_exists('admin_dict')) {
     /**
      * 数据字典
-     * @return AdminDict
+     * @return DictService
      */
-    function admin_dict(): AdminDict
+    function admin_dict(): DictService
     {
         return app('admin.dict');
     }

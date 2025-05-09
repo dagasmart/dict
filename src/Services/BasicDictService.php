@@ -21,7 +21,7 @@ class BasicDictService extends AdminService
 
     public function getListByParentId($parentId)
     {
-        return $this->query()->where('parent_id', $parentId)->get();
+        return $this->query()->where('parent_id', $parentId)->get()->toArray();
     }
 
     public function getDictType()
@@ -88,6 +88,8 @@ class BasicDictService extends AdminService
 
         $this->clearCache();
 
+        $data['id'] = bcadd($this->query()->max('id') ?? 0, 1); //id最大值 +1
+
         return parent::store($data);
     }
 
@@ -147,18 +149,23 @@ class BasicDictService extends AdminService
 
     public function getAllData()
     {
-        return Cache::rememberForever(self::All_DICT_CACHE_KEY, function () {
-            $this->clearCache();//清除指定缓存
-            return Cache::lock(self::All_DICT_CACHE_KEY . '_lock', 10)->block(5, function () {
-                $data = $this->query()
-                    ->with('children')
-                    ->where('parent_id', 0)
-                    ->orderByDesc('sort')
-                    ->get();
-
-                return $data->toArray();
-            });
-        });
+        return $this->query()
+            ->where('parent_id', 0)
+            ->orderByDesc('sort')
+            ->get()
+            ->toArray();
+//        return Cache::rememberForever(self::All_DICT_CACHE_KEY, function () {
+//            $this->clearCache();//清除指定缓存
+//            return Cache::lock(self::All_DICT_CACHE_KEY . '_lock', 10)->block(5, function () {
+//                $data = $this->query()
+//                    ->with('children')
+//                    ->where('parent_id', 0)
+//                    ->orderByDesc('sort')
+//                    ->get();
+//
+//                return $data->toArray();
+//            });
+//        });
     }
 
     public function getValidData()

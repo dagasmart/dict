@@ -21,5 +21,6 @@ return [
         'enabled'   => '是否启用',
         'sort'      => '排序',
         'type_key'  => '编码',
+        'type_val'  => '标识',
     ],
 ];

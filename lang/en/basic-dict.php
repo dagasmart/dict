@@ -8,6 +8,8 @@ return [
     ],
     'repeat'            => ': field already exists',
     'type'              => 'Type',
+    'type_label'       => 'Type name',
+    'type_value'       => 'Type tag',
     'yes'               => 'Yes',
     'no'                => 'No',
     'sort_description'  => 'The larger the sorting value, the higher the ranking.',
@@ -19,5 +21,6 @@ return [
         'enabled'       => 'Whether to enable',
         'sort'          => 'Sort',
         'type_key'      => 'Encoding',
+        'type_val'      => 'Tag',
     ],
 ];

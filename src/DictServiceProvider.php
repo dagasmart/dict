@@ -30,15 +30,15 @@ class DictServiceProvider extends ServiceProvider
     {
         parent::register();
 
-        $this->app->singleton('admin.dict', AdminDict::class);
+        $this->app->singleton('admin.dict', DictService::class);
     }
 
     public function settingForm(): ?Form
     {
         return $this->baseSettingForm()->body([
-            SwitchControl::make()->name('disabled_dict_type')->label('屏蔽数据字典类型管理'),
-            SwitchControl::make()->name('disabled_dict_create')->label('屏蔽数据字典创建'),
-            SwitchControl::make()->name('disabled_dict_delete')->label('屏蔽数据字典删除'),
+            amis()->SwitchControl()->name('disabled_dict_type')->label('屏蔽数据字典类型管理'),
+            amis()->SwitchControl()->name('disabled_dict_create')->label('屏蔽数据字典创建'),
+            amis()->SwitchControl()->name('disabled_dict_delete')->label('屏蔽数据字典删除'),
         ]);
     }
 }

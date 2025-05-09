@@ -5,9 +5,11 @@ namespace DagaSmart\Dict;
 use Illuminate\Support\Arr;
 use DagaSmart\Dict\Services\BasicDictService as Service;
 
-class AdminDict
+class DictService
 {
     private ?array $data;
+
+    protected Service $service;
 
     public function key($default = '')
     {
@@ -26,7 +28,8 @@ class AdminDict
 
     public function get($path, $needAllData = false): static
     {
-        $originData = $needAllData ? Service::make()->getAllData() : Service::make()->getValidData();
+
+        $originData = $needAllData ? $this->service->getAllData() : $this->service->getValidData();
 
         $this->data = Arr::get($originData, $path);
 
