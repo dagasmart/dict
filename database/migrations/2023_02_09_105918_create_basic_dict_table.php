@@ -16,15 +16,15 @@ return new class extends Migration
     public function up(): void
     {
         if (Schema::hasTable($this->table)) {
-            //备份
+            //备份表
             Schema::rename($this->table, 'backup_' . $this->table . '_' .date('YmdHis'));
-            //删除
+            //删除表
             Schema::dropIfExists($this->table);
         }
-        //创建
+        //创建表
         Schema::create($this->table, function (Blueprint $table) {
             $table->comment('基础-数据字典表');
-            $table->id()->startingValue(40);
+            $table->id()->startingValue(41); //自增序列起始值，必须大于填充数据的id最大值 + 1
             $table->integer('parent_id')->default(0)->comment('父级ID')->index();
             $table->string('key', 100)->comment('编码/键名')->index();
             $table->tinyInteger('enabled')->default(1)->comment('是否启用')->index();
@@ -36,6 +36,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+        //填充数据初始化
         $this->fillInitialData();
     }
 
@@ -57,8 +58,7 @@ return new class extends Migration
     public function fillInitialData(): void
     {
         $model = new BasicDict;
-        // 创建初始角色
-        $model->query()->truncate();
+        // 创建初始数据
         $model->query()->insert([
             ['id'=>1, 'parent_id'=>0, 'key'=>'daga.filesystem.driver', 'enabled'=>1, 'sort'=>0, 'value'=>'文件系统驱动'],
             ['id'=>2, 'parent_id'=>1, 'key'=>'local', 'enabled'=>1, 'sort'=>0, 'value'=>'本地存储'],

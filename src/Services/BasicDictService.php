@@ -88,8 +88,6 @@ class BasicDictService extends AdminService
 
         $this->clearCache();
 
-        $data['id'] = bcadd($this->query()->max('id') ?? 0, 1); //id最大值 +1
-
         return parent::store($data);
     }
 

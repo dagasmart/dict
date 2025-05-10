@@ -58,6 +58,7 @@ class BasicDictController extends AdminController
                     ->size('none')
                     ->body($this->trans('dict_type.label'))
                     ->className('flex items-center text-md'),
+                amis()->SvgIcon()->icon('marketeq:update')
             ]),
             amis()->Form()
                 ->wrapWithPanel(false)
