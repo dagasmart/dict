@@ -1,4 +1,4 @@
-## 数据字典
+## BizAdmin 数据字典
 
 ## 效果
 
@@ -34,6 +34,8 @@ composer require dagasmart/dict
 admin_dict()->getValue('user.status', '未知');
 // 使用容器
 app('admin.dict')->getValue('user.status', '未知');
+// 使用接口获取字典选项 (该接口会返回 [['label' => xx, 'value' => xx]] 格式的数据
+/admin_dict/options?path=gender
 ```
 
 ### 可用方法
@@ -63,6 +65,14 @@ public function getKey($path, $default = '', $needAllData = true)
  * @return array 例如: ['key' => 'normal', 'value' => '正常']
  */
 public function getAll($path, $default = [], $needAllData = true)
+
+
+/**
+ * 获取数据字典数据 - 选项格式
+ * @params ...
+ * @return array 例如: [['label' => '正常', 'value' => 'normal']]
+ */
+public function getOptions($path, $needAllData = true)
 
 ```
 
