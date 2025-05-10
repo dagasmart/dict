@@ -7,10 +7,20 @@ use DagaSmart\BizAdmin\Extend\ServiceProvider;
 class DictServiceProvider extends ServiceProvider
 {
     protected $menu = [
+
+//        [
+//            'parent' => NULL,
+//            'title' => '基本设置',
+//            'url' => '/basic',
+//            'url_type' => 1,
+//            'icon' => 'basil:settings-solid',
+//        ],
         [
-            'title' => '数据字典',
-            'url'   => '/admin_dict',
-            'icon'  => 'fluent-mdl2:dictionary',
+            'parent'    => '基本设置',
+            'title'     => '数据字典',
+            'url'       => '/basic/dict',
+            'url_type'  => 1,
+            'icon'      => 'streamline:dictionary-language-book',
         ],
     ];
 
