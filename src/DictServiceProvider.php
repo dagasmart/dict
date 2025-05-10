@@ -3,6 +3,7 @@
 namespace DagaSmart\Dict;
 
 use DagaSmart\BizAdmin\Extend\ServiceProvider;
+use DagaSmart\BizAdmin\Renderers\Form;
 
 class DictServiceProvider extends ServiceProvider
 {
@@ -31,7 +32,7 @@ class DictServiceProvider extends ServiceProvider
         $this->app->singleton('admin.dict', Common::class);
     }
 
-    public function settingForm()
+    public function settingForm(): Form
     {
         return $this->baseSettingForm()->body([
             amis()->SwitchControl('disabled_dict_type', '屏蔽数据字典类型管理'),

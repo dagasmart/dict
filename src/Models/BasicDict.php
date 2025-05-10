@@ -9,9 +9,11 @@ use DagaSmart\BizAdmin\Models\BaseModel as Model;
 
 class BasicDict extends Model
 {
-    use SoftDeletes;
+    //use SoftDeletes;
 
     protected $table = 'basic_dict';
+
+    protected $primaryKey = 'id';
 
     public function children(): HasMany
     {

@@ -46,8 +46,8 @@ class DictController extends AdminController
     public function navBar(): Card
     {
         $formItems = [
-            amis()->TextControl('value', $this->trans('type_label'))->required()->maxLength(255),
-            amis()->TextControl('key', $this->trans('type_value'))->required()->maxLength(255),
+            amis()->TextControl('value', $this->trans('type_label'))->clearable()->required()->maxLength(255),
+            amis()->TextControl('key', $this->trans('type_value'))->clearable()->required()->maxLength(255),
             amis()->SwitchControl('enabled', $this->trans('field.enabled'))->value(1),
         ];
 
@@ -70,7 +70,7 @@ class DictController extends AdminController
                                 ],
                                 [
                                     'actionType' => 'url',
-                                    'args'       => ['url' => admin_url('admin_dict?parent_id=')],
+                                    'args'       => ['url' => admin_url('/basic/dict?parent_id=')],
                                 ],
 
                             ],
@@ -83,7 +83,7 @@ class DictController extends AdminController
                 ->body(
                     amis()->TreeControl('dict_type')
                         ->id('dict_type_list')
-                        ->source('/admin_dict/dict_type_options')
+                        ->source('/basic/dict/type_options')
                         ->set('valueField', 'id')
                         ->set('labelField', 'value')
                         ->showIcon(false)
@@ -106,7 +106,7 @@ class DictController extends AdminController
                                 'actions' => [
                                     [
                                         'actionType' => 'url',
-                                        'args'       => ['url' => '/admin_dict?parent_id=${dict_type}'],
+                                        'args'       => ['url' => '/basic/dict?parent_id=${dict_type}'],
                                     ],
                                 ],
                             ],
@@ -160,13 +160,13 @@ class DictController extends AdminController
 					amis()->SelectControl()
                         ->name('parent_id')
                         ->label($this->trans('type'))
-                        ->source(admin_url('/admin_dict/dict_type_options'))
+                        ->source(admin_url('/basic/dict/type_options'))
                         ->set('valueField', 'id')
                         ->set('labelField', 'value')
                         ->clearable()
                         ->size('md'),
-                    amis()->TextControl('key', $this->trans('field.key'))->size('md')->hidden($this->muggleMode()),
-                    amis()->TextControl('value', $this->trans('field.value'))->size('md'),
+                    amis()->TextControl('key', $this->trans('field.key'))->clearable()->size('md')->hidden($this->muggleMode()),
+                    amis()->TextControl('value', $this->trans('field.value'))->clearable()->size('md'),
                     amis()->SelectControl('enabled', $this->trans('field.enabled'))
                         ->size('md')
                         ->clearable()
@@ -224,16 +224,18 @@ class DictController extends AdminController
             'sort'    => 0,
         ])->body([
             amis()->SelectControl('parent_id', $this->trans('type'))
-                ->source(admin_url('/admin_dict/dict_type_options'))
+                ->source(admin_url('/basic/dict/type_options'))
                 ->clearable()
                 ->required()
                 ->value('${dict_type || ' . $this->service->getFirstId() . '}')
                 ->valueField('id')
                 ->labelField('value'),
             amis()->TextControl('value', $this->trans('field.value'))
+                ->clearable()
                 ->required()
                 ->maxLength(255),
             $this->muggleMode() ? '' : amis()->TextControl('key', $this->trans('field.key'))
+                ->clearable()
                 ->required()
                 ->maxLength(255)
                 ->addOn(
@@ -289,8 +291,8 @@ class DictController extends AdminController
             'enabled' => true,
             'sort'    => 0,
         ])->body([
-            amis()->TextControl()->name('value')->label($this->trans('field.value'))->required()->maxLength(255),
-            amis()->TextControl()->name('key')->label($this->trans('field.key'))->required()->maxLength(255),
+            amis()->TextControl()->name('value')->label($this->trans('field.value'))->clearable()->required()->maxLength(255),
+            amis()->TextControl()->name('key')->label($this->trans('field.key'))->clearable()->required()->maxLength(255),
             amis()->SwitchControl()->name('enabled')->label($this->trans('field.enabled')),
         ]);
 
@@ -327,8 +329,8 @@ class DictController extends AdminController
                     ])
                     ->filter(
                         $this->baseFilter()->data(['_type' => 1])->body([
-                            amis()->TextControl()->name('type_key')->label($this->trans('field.type_key'))->size('md'),
-                            amis()->TextControl()->name('type_value')->label($this->trans('field.value'))->size('md'),
+                            amis()->TextControl()->name('type_key')->label($this->trans('field.type_key'))->clearable()->size('md'),
+                            amis()->TextControl()->name('type_value')->label($this->trans('field.value'))->clearable()->size('md'),
                             amis()->SelectControl()
                                 ->name('type_enabled')
                                 ->label($this->trans('field.enabled'))

@@ -17,8 +17,8 @@ class DictService extends AdminService
 {
     protected string $modelName = Model::class;
 
-    const All_DICT_CACHE_KEY   = 'admin_dict_cache_key';
-    const VALID_DICT_CACHE_KEY = 'admin_dict_valid_cache_key';
+    const string All_DICT_CACHE_KEY   = 'admin_dict_cache_key';
+    const string VALID_DICT_CACHE_KEY = 'admin_dict_valid_cache_key';
 
     public function getListByParentId($parentId)
     {
@@ -49,13 +49,12 @@ class DictService extends AdminService
     public function listQuery()
     {
         $isType   = request()->has('_type') ? '=' : '<>';
-        $key      = request()->input('key');
-        $value    = request()->input('value');
+        $key      = request()->input('key', request()->input('type_key'));
+        $value    = request()->input('value', request()->input('type_value'));
         $parentId = request()->input('parent_id');
-        $enabled  = request()->input('enabled');
+        $enabled  = request()->input('enabled', request()->input('type_enabled'));
 
         $query = $this->query()
-            ->orderByDesc($this->sortColumn())
             ->with('dict_type')
             ->where('parent_id', $isType, 0)
             ->when($parentId, fn($query) => $query->where('parent_id', $parentId))
@@ -66,6 +65,22 @@ class DictService extends AdminService
         $this->sortable($query);
 
         return $query;
+    }
+
+    /**
+     * 排序
+     *
+     * @param $query
+     *
+     * @return void
+     */
+    public function sortable($query): void
+    {
+        if (request()->orderBy && request()->orderDir) {
+            $query->orderBy(request()->orderBy, request()->orderDir ?? 'asc');
+        } else {
+            $query->orderBy('parent_id')->orderBy('sort');
+        }
     }
 
     public function store($data): bool
@@ -110,7 +125,7 @@ class DictService extends AdminService
         return parent::update($primaryKey, $data);
     }
 
-    public function repeatError($parentId)
+    public function repeatError($parentId): bool
     {
         return $this->setError(
             $this->trans(
@@ -129,7 +144,7 @@ class DictService extends AdminService
         return parent::delete($ids);
     }
 
-    private function handleData($data)
+    private function handleData($data): array
     {
         $result = [];
 
@@ -184,13 +199,13 @@ class DictService extends AdminService
         });
     }
 
-    public function clearCache()
+    public function clearCache(): void
     {
         Cache::forget(self::All_DICT_CACHE_KEY);
         Cache::forget(self::VALID_DICT_CACHE_KEY);
     }
 
-    private function trans($key, $replace = [])
+    private function trans($key, $replace = []): array|string|null
     {
         return DictServiceProvider::trans('admin-dict.' . $key, $replace);
     }
