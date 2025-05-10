@@ -11,7 +11,7 @@ class BasicDict extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'admin_dict';
+    protected $table = 'basic_dict';
 
     public function children(): HasMany
     {
