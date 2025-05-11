@@ -7,14 +7,14 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Builder;
 use DagaSmart\Dict\DictServiceProvider;
 use DagaSmart\BizAdmin\Services\AdminService;
-use DagaSmart\Dict\Models\BasicDict as Model;
+use DagaSmart\Dict\Models\BasicDict;
 
 /**
- * @method Model|Builder query()
+ * @method BasicDict|Builder query()
  */
 class DictService extends AdminService
 {
-    protected string $modelName = Model::class;
+    protected string $modelName = BasicDict::class;
 
     const string All_DICT_CACHE_KEY   = 'admin_dict_cache_key';
     const string VALID_DICT_CACHE_KEY = 'admin_dict_valid_cache_key';
@@ -171,10 +171,11 @@ class DictService extends AdminService
         return Cache::rememberForever(self::All_DICT_CACHE_KEY, function () {
             return Cache::lock(self::All_DICT_CACHE_KEY . '_lock', 10)->block(5, function () {
                 $data = $this->query()
-                    ->with(['children' => fn($q) => $q->withTrashed()])
-                    ->withTrashed()
+                    //->with(['children' => fn($query) => $query->withTrashed()])
+                    //->withTrashed()
+                    ->with('children')
                     ->where('parent_id', 0)
-                    ->orderByDesc('sort')
+                    ->orderBy('sort')
                     ->get();
 
                 return $this->handleData($data ? $data->toArray() : []);
@@ -187,10 +188,10 @@ class DictService extends AdminService
         return Cache::rememberForever(self::VALID_DICT_CACHE_KEY, function () {
             return Cache::lock(self::VALID_DICT_CACHE_KEY . '_lock', 10)->block(5, function () {
                 $data = $this->query()
-                    ->with(['children' => fn($q) => $q->where('enabled', 1)])
+                    ->with(['children' => fn($query) => $query->where('enabled', 1)])
                     ->where('parent_id', 0)
                     ->where('enabled', 1)
-                    ->orderByDesc('sort')
+                    ->orderBy('sort')
                     ->get();
 
                 return $this->handleData($data ? $data->toArray() : []);

@@ -17,7 +17,7 @@ class BasicDict extends Model
 
     public function children(): HasMany
     {
-        return $this->hasMany(BasicDict::class, 'parent_id')->orderByDesc('sort');
+        return $this->hasMany(BasicDict::class, 'parent_id')->orderBy('sort');
     }
 
     public function dict_type(): BelongsTo
