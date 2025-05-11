@@ -3,7 +3,6 @@
 namespace DagaSmart\Dict\Services;
 
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Builder;
 use DagaSmart\Dict\DictServiceProvider;

@@ -22,7 +22,7 @@ class DictController extends AdminController
 {
     protected string $serviceName = DictService::class;
 
-    public function index()
+    public function index(): JsonResponse|JsonResource
     {
         if ($this->actionOfGetData()) {
             return $this->response()->success($this->service->list());

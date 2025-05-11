@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ManoCode\CustomExtend\Traits;
+namespace DagaSmart\Dict\Traits;
 
 use Exception;
 use Illuminate\Support\Arr;

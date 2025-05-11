@@ -1,12 +1,16 @@
 <?php
+declare(strict_types=1);
 
 namespace DagaSmart\Dict;
 
 use DagaSmart\BizAdmin\Extend\ServiceProvider;
 use DagaSmart\BizAdmin\Renderers\Form;
+use DagaSmart\Dict\Traits\DictTrait;
 
 class DictServiceProvider extends ServiceProvider
 {
+    use DictTrait;
+
     protected $menu = [
 
 //        [
