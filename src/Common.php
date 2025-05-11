@@ -9,16 +9,26 @@ class Common
 {
     private ?array $data = [];
 
-    private function key($default = '')
+    private function key($value = null): mixed
     {
-        dump($this->data);
-        dump($default);
-        return Arr::get($this->data, 'key', $default);
+        if(!$this->data) return null;
+        $array = array_column(array_values($this->data), 'value', 'key');
+        if ($value) {
+            return array_search($value, $array) ?? null;
+        } else {
+            return array_keys($array) ?? null;
+        }
     }
 
-    private function value($default = '')
+    private function value($key = null): mixed
     {
-        return Arr::get($this->data, 'value', $default);
+        if(!$this->data) return null;
+        $array = array_column(array_values($this->data), 'value', 'key');
+        if ($key) {
+            return $array[$key] ?? null;
+        } else {
+            return array_values($array) ?? null;
+        }
     }
 
     private function options(): array
@@ -46,14 +56,14 @@ class Common
         return $this;
     }
 
-    public function getValue($path, $default = '', $needAllData = true)
+    public function getValue($path, $key = '', $needAllData = true): array|string|null
     {
-        return $this->get($path, $needAllData)->value($default);
+        return $this->get($path, $needAllData)->value($key);
     }
 
-    public function getKey($path, $default = '', $needAllData = true)
+    public function getKey($path, $value = '', $needAllData = true)
     {
-        return $this->get($path, $needAllData)->key($default);
+        return $this->get($path, $needAllData)->key($value);
     }
 
     /**

@@ -31,11 +31,25 @@ composer require dagasmart/dict
 
 ```php
 // 使用助手函数
-admin_dict()->getValue('user.status', '未知');
-// 使用容器
-app('admin.dict')->getValue('user.status', '未知');
+admin_dict()->get('data.filesystem.driver');
+//输出：['data' => ['local' => ['key' => 'local', 'value' => '本地存储'], ...]]
+admin_dict()->getAll('data.filesystem.driver');
+//输出：['local' => ['key' => 'local', 'value' => '本地存储'], ...]
+admin_dict()->getKey('data.filesystem.driver');
+//输出：['local', ...]
+admin_dict()->getKey('data.filesystem.driver','本地存储');
+//输出：local
+admin_dict()->getValue('data.filesystem.driver');
+//输出：['本地存储', ...]
+admin_dict()->getValue('data.filesystem.driver', 'local');
+//输出：本地存储
+admin_dict()->getOptions('data.filesystem.driver');
+//输出：[['label' => '本地存储', 'value' => 'local'], ...]
+admin_dict()->getMapValues('data.filesystem.driver');
+//输出：{"local": "本地存储", ...}
+
 // 使用接口获取字典选项 (该接口会返回 [['label' => xx, 'value' => xx]] 格式的数据
-/admin_dict/options?path=gender
+api('/basic/dict/options?path=data.filesystem.driver')
 ```
 
 ### 可用方法
