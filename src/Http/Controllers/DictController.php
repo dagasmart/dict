@@ -360,7 +360,7 @@ class DictController extends AdminController
 
     private function trans($key): array|string|null
     {
-        return DictServiceProvider::trans('admin-dict.' . $key);
+        return DictServiceProvider::trans('basic-dict.' . $key);
     }
 
     private function dictTypeEnabled(): bool

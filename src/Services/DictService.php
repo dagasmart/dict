@@ -207,6 +207,6 @@ class DictService extends AdminService
 
     private function trans($key, $replace = []): array|string|null
     {
-        return DictServiceProvider::trans('admin-dict.' . $key, $replace);
+        return DictServiceProvider::trans('basic-dict.' . $key, $replace);
     }
 }
