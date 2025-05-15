@@ -4,12 +4,12 @@ namespace DagaSmart\Dict\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
+//use Illuminate\Database\Eloquent\SoftDeletes;
 use DagaSmart\BizAdmin\Models\BaseModel as Model;
 
 class BasicDict extends Model
 {
-    //use SoftDeletes;
+//    use SoftDeletes;
 
     protected $table = 'basic_dict';
 
