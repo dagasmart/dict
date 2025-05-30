@@ -7,7 +7,7 @@ use DagaSmart\Dict\Services\DictService as Service;
 
 class Common
 {
-    private ?array $data = [];
+    public ?array $data = [];
 
     private function key($value = null): mixed
     {
@@ -39,9 +39,9 @@ class Common
         ])->toArray();
     }
 
-    private function mapValues(): object
+    private function mapValues(): array
     {
-        return (object) collect($this->data)->values()->pluck('value', 'key')->toArray();
+        return collect($this->data)->values()->pluck('value', 'key')->toArray();
     }
 
     private function all($default = [])
@@ -103,5 +103,10 @@ class Common
     public function getOptions($path, bool $needAllData = true): array
     {
         return $this->get($path, $needAllData)->options();
+    }
+
+    public function toArray(): Common
+    {
+        return $this;
     }
 }

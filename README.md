@@ -46,9 +46,9 @@ admin_dict()->getValue('data.filesystem.driver', 'local');
 admin_dict()->getOptions('data.filesystem.driver');
 //输出：[['label' => '本地存储', 'value' => 'local'], ...]
 admin_dict()->getMapValues('data.filesystem.driver');
-//输出：{"local": "本地存储", ...}
+//输出：["本地存储", ...]
 
-// 使用接口获取字典选项 (该接口会返回 [['label' => xx, 'value' => xx]] 格式的数据
+// 使用接口获取字典选项 (暂时不以使用，该接口会返回 [['label' => xx, 'value' => xx]] 格式的数据)
 api('/basic/dict/options?path=data.filesystem.driver')
 ```
 
