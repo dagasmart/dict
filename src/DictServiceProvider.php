@@ -1,11 +1,12 @@
 <?php
 declare(strict_types=1);
-
 namespace DagaSmart\Dict;
 
+use Exception;
 use DagaSmart\BizAdmin\Extend\ServiceProvider;
 use DagaSmart\BizAdmin\Renderers\Form;
 use DagaSmart\Dict\Traits\DictTrait;
+
 
 class DictServiceProvider extends ServiceProvider
 {
@@ -29,12 +30,24 @@ class DictServiceProvider extends ServiceProvider
         ],
     ];
 
+    /**
+     * @return void
+     * @throws Exception
+     */
     public function register(): void
     {
         parent::register();
 
+        /**加载路由**/
+        parent::registerRoutes(__DIR__.'/Http/routes.php');
+        /**加载语言包**/
+        if ($lang = parent::getLangPath()) {
+            $this->loadTranslationsFrom($lang, $this->getCode());
+        }
+
         $this->app->singleton('admin.dict', Common::class);
     }
+
 
     public function settingForm(): Form
     {
