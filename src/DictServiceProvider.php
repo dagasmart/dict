@@ -29,6 +29,7 @@ class DictServiceProvider extends ServiceProvider
             'icon'      => 'streamline:dictionary-language-book',
         ],
     ];
+    private $dict;
 
     /**
      * @return void
