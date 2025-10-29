@@ -204,12 +204,10 @@ class DictController extends AdminController
         return $this->basePage()->body([
             amis()->Alert()
                 ->showIcon()
+                ->showCloseButton()
                 ->style([
                     'padding' => '1rem',
-                    'color' => 'var(--colors-brand-6)',
                     'borderStyle' => 'dashed',
-                    'borderColor' => 'var(--colors-brand-6)',
-                    'backgroundColor' => 'var(--Tree-item-onChekced-bg)',
                 ])
                 ->body("调用方法：admin_dict()->getOptions('data.filesystem.driver')"),
             $this->baseList($crud)
