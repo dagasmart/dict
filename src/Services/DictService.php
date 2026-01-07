@@ -54,13 +54,14 @@ class DictService extends AdminService
         $enabled  = request()->input('enabled', request()->input('type_enabled'));
 
         $query = $this->query()
+            ->orderByDesc('sort')
+            ->orderByDesc($this->sortColumn())
             ->with('dict_type')
             ->where('parent_id', $isType, 0)
             ->when($parentId, fn($query) => $query->where('parent_id', $parentId))
             ->when($key, fn($query) => $query->where('key', 'like', "%{$key}%"))
             ->when($value, fn($query) => $query->where('value', 'like', "%{$value}%"))
             ->when(is_numeric($enabled), fn($query) => $query->where('enabled', $enabled));
-
         $this->sortable($query);
 
         return $query;
@@ -203,6 +204,56 @@ class DictService extends AdminService
     {
         Cache::forget(self::All_DICT_CACHE_KEY);
         Cache::forget(self::VALID_DICT_CACHE_KEY);
+    }
+
+    /**
+     * 重新排序
+     *
+     * @param $ids
+     *
+     * @return bool|int
+     */
+    public function reorder($ids)
+    {
+        if (blank($ids)) {
+            return false;
+        }
+
+        $ids = json_decode('[' . str_replace('[', ',[', $ids) . ']');
+
+        $orderList = $this->refreshOrder($ids);
+        $total     = count($orderList);
+
+        // 列表查询是 orderByDesc('sort')，所以序号越小的值 sort 应该越大
+        $list = collect($orderList)->transform(fn($index) => ($total - $index) * 10)->all();
+
+        $sql = 'update ' . $this->getModel()->getTable() . ' set sort = case id ';
+
+        $params = [];
+        foreach ($list as $k => $v) {
+            $params[] = $k;
+            $params[] = $v;
+            $sql .= " when ? then ? ";
+        }
+
+        $result = \Illuminate\Support\Facades\DB::update($sql . ' else sort end', $params);
+
+        if ($result !== false) {
+            $this->clearCache();
+        }
+
+        return $result;
+    }
+
+    public function refreshOrder($list)
+    {
+        $result = collect($list)->filter(fn($i) => !is_array($i))->values()->flip()->toArray();
+
+        collect($list)->filter(fn($i) => is_array($i))->each(function ($item) use (&$result) {
+            $result = $this->refreshOrder($item) + $result;
+        });
+
+        return $result;
     }
 
     private function trans($key, $replace = []): array|string|null

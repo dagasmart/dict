@@ -5,21 +5,13 @@ use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Route;
 
 //需登录与鉴权
-//Route::group([
-//    'middleware' => config('admin.route.middleware'),
-//], function (Router $router) {
-//
-//    $router->get('/basic/dict/type_options', [Controllers\DictController::class, 'dictTypeOptions']);
-//    $router->get('/basic/dict/options', [Controllers\DictController::class, 'dictOptions']);
-//
-//    //resource必须放最后面
-//    $router->resource('/basic/dict', Controllers\DictController::class);
-//
-//});
-
-
-Route::get('/basic/dict/type_options', [Controllers\DictController::class, 'dictTypeOptions']);
-Route::get('/basic/dict/options', [Controllers\DictController::class, 'dictOptions']);
-
-//resource必须放最后面
-Route::resource('/basic/dict', Controllers\DictController::class);
+Route::group([
+    'prefix' => 'basic',
+    'middleware' => [],
+], function (Router $router) {
+    $router->get('dict/type_options', [Controllers\DictController::class, 'dictTypeOptions']);
+    $router->get('dict/options', [Controllers\DictController::class, 'dictOptions']);
+    $router->post('dict/save_order', [Controllers\DictController::class, 'saveOrder']);
+    //resource必须放最后面
+    $router->resource('dict', Controllers\DictController::class);
+});

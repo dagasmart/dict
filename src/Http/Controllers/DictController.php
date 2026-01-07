@@ -142,6 +142,11 @@ class DictController extends AdminController
         }
         $crud = $this->baseCRUD()
             ->syncLocation(true)
+            ->draggable()
+            ->saveOrderApi([
+                'url'  => '/basic/dict/save_order',
+                'data' => ['ids' => '${ids}'],
+            ])
             ->api($this->getListGetDataPath())
             ->headerToolbar([
                 //$this->createButton(true)->visible(!DictServiceProvider::setting('disabled_dict_create')),
@@ -279,7 +284,12 @@ class DictController extends AdminController
 
     public function detail($id): Form
     {
-        return $this->baseDetail($id);
+        return $this->baseDetail();
+    }
+
+    public function saveOrder()
+    {
+        return $this->autoResponse($this->service->reorder(request()->input('ids')));
     }
 
     public function dictForm(): DialogAction
